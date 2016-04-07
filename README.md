@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/amlinger/tellstick-confparser.svg?branch=master)](https://travis-ci.org/amlinger/tellstick-confparser)
+[![Build Status](https://travis-ci.org/amlinger/tellstick.conf-parser.svg?branch=master)](https://travis-ci.org/amlinger/tellstick.conf-parser)
 
 # tellstick.conf Parser
 Parsing tellstick.conf files into Javascript objects.
