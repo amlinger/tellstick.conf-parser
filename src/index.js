@@ -40,14 +40,14 @@ const Parser = {
 
     if (isString != null)
       pair[1] = isString[1]
-    else if (Number(pair[1], 10) != NaN)
-      pair[1] = Number(pair[1], 10)
     else if (pair[1].toLowerCase() === 'false')
       pair[1] = false
     else if (pair[1].toLowerCase() === 'true')
       pair[1] = true
     else if (pair[1].toLowerCase() === 'null')
       pair[1] = null
+    else if (Number(pair[1], 10) != NaN)
+      pair[1] = Number(pair[1], 10)
     else throw  `Unknown type: ${pair[1]}`
 
     return {ptr: ptr, json:pair}
@@ -97,7 +97,7 @@ const Parser = {
       } else if (lines[ptr].startsWith('parameters')) {
         const res = Parser._handleBlock(ptr, 'parameters', lines)
         ptr = res.ptr
-        blockJSON.paramaters = res.json
+        blockJSON.parameters = res.json
       } else if (line !== '' ){
         const res = Parser._handlePair(ptr, lines)
         ptr = res.ptr
