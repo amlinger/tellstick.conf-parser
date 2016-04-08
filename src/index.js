@@ -151,6 +151,71 @@ const Parser = {
 
       resolve(confJSON)
     })
+  }),
+
+  /**
+   * Accepts a key, and a value and returns the pair string for the items,
+   * e.g:
+   * ```
+   * key = val
+   * ```
+   * Quotes string values in double quotes.
+   *
+   * @param  {String} k      A string key.
+   * @param  {*}      v      The value to set.
+   * @param  {Number} indent An indentation leverl.
+   * @return {String}        The string representing the pair.
+   */
+  _pairToString: (k, v, indent) =>
+    `${' '.repeat(indent)}${k} = ${(typeof v === 'string') ? `"${v}"` : v}`,
+
+  /**
+   * Takes an object block and creates a string representing it, omitting the
+   * wrapping curly brackets, as well as eventuall name of the block.
+   * Includes nested blocks, by repreating the same process recursively.
+   *
+   * @param  {Object} block  The block to print to string
+   * @param  {Number} indent The base indentation level.
+   * @return {String}        A string representing the block.
+   */
+  _blockToString: (block, indent) => {
+    return Object.keys(block).map(key => {
+      let val = block[key], line
+
+      if (val instanceof Array) {
+        line = val.map(item => {
+          const str = Parser._blockToString(item, indent + 2),
+            singular = (key.slice(-1) === 's') ? key.slice(0, -1) : key,
+            indentLvl = ' '.repeat(indent)
+          return `${indentLvl}${singular} {\n${str}\n${indentLvl}}`
+        }).join('\n')
+      } else if (val instanceof Object) {
+        const str = Parser._blockToString(val, indent + 2)
+        line = `${' '.repeat(indent)}${key} {\n${str}\n${' '.repeat(indent)}}`
+      } else {
+        line = Parser._pairToString(key, val, indent)
+      }
+
+      return line
+    }).join('\n')
+  },
+
+  /**
+   * Writes a Javascript object-represented configuration to file, specified
+   * by the path.
+   * This will overwrite any potential file already occupied by the specified
+   * path.
+   *
+   * @param  {String}  path   The path of the file to write to.
+   * @param  {Object}  object The object to print to file
+   * @return {Promier}        A promise that will resolve on a successful write
+   *                          end reject on an unsuccessful.
+   */
+  write: (path, object) => new Promise((resolve, reject) => {
+    fs.writeFile(path, Parser._blockToString(object, 0), err => {
+      if (err) reject(err)
+      resolve()
+    })
   })
 }
 
