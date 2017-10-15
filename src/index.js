@@ -123,35 +123,52 @@ const Parser = {
    */
   parse: path => new Promise((resolve, reject) => {
     fs.readFile(path, (err, buffer) =>  {
-      // Fetch the lines of the file, and trim white-spaces from lines as well
-      // as remove commented lines
-      const lines = buffer.toString().split('\n')
-        .map(l => l.trim())
-        .filter(l => l !== '' && !l.startsWith('#'))
-
-      const confJSON = {devices: []}
-      let ptr = 0
-      for (;ptr < lines.length; ptr++) {
-        const line = lines[ptr]
-
-        if (line.startsWith('device') && !line.startsWith('deviceNode')) {
-          const res = Parser._handleBlock(ptr, 'device', lines)
-          ptr = res.ptr
-          confJSON.devices.push(res.json)
-        } else if (line.startsWith('controller')) {
-          const res = Parser._handleBlock(ptr, 'controller', lines)
-          ptr = res.ptr
-          confJSON.controller = res.json
-        } else if (line !== '' ) {
-          const res = Parser._handlePair(ptr, lines)
-          ptr = res.ptr
-          confJSON[res.json[0]] = res.json[1]
-        }
-      }
-
-      resolve(confJSON)
+      resolve(Parser.parseString(buffer.toString()))
     })
   }),
+
+  /**
+   * Parses a string from a configuration file.
+   * Does not take the ordering of the string into consideration.
+   *
+   * This does a three time pass of the string:
+   * 1. Trim the white-spaces from each line (fetching the lines could also
+   *    be considered a pass, though).
+   * 2. Removing the comments.
+   * 3. Parsing the remaining content.
+   *
+   * @param   {String} confString The path to the configuration file
+   * @returns {Object}            The resulting object
+   */
+  parseString: confString => {
+    // Fetch the lines of the file, and trim white-spaces from lines as well
+    // as remove commented lines
+    const lines = confString.split('\n')
+      .map(l => l.trim())
+      .filter(l => l !== '' && !l.startsWith('#'))
+
+    const confJSON = {devices: []}
+    let ptr = 0
+    for (;ptr < lines.length; ptr++) {
+      const line = lines[ptr]
+
+      if (line.startsWith('device') && !line.startsWith('deviceNode')) {
+        const res = Parser._handleBlock(ptr, 'device', lines)
+        ptr = res.ptr
+        confJSON.devices.push(res.json)
+      } else if (line.startsWith('controller')) {
+        const res = Parser._handleBlock(ptr, 'controller', lines)
+        ptr = res.ptr
+        confJSON.controller = res.json
+      } else if (line !== '' ) {
+        const res = Parser._handlePair(ptr, lines)
+        ptr = res.ptr
+        confJSON[res.json[0]] = res.json[1]
+      }
+    }
+
+    return confJSON
+  },
 
   /**
    * Accepts a key, and a value and returns the pair string for the items,
