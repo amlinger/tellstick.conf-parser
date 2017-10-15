@@ -1,6 +1,6 @@
 {
   "name": "tellstick.conf-parser",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Parsing Tellstick.conf files into Javascript objects.",
   "main": "./dist/index.js",
   "scripts": {
