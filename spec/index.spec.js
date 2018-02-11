@@ -16,6 +16,20 @@ describe('Parser', () => {
 
   describe('#parse', () => {
 
+    it('should reject Promise when stuff fails', done => {
+      const error = new Error('Stuff obviously fails')
+      Parser = proxyquire('../src/index', {
+        fs: {
+          readFile: (path, callback) => callback(error, null)
+        }
+      })
+
+      Parser.parse('mock.conf').catch(err => {
+        expect(err).toEqual(error)
+        done()
+      })
+    })
+
     it('should handle empty configs', done => {
       registerConfFile('')
 

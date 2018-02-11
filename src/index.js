@@ -123,7 +123,8 @@ const Parser = {
    */
   parse: path => new Promise((resolve, reject) => {
     fs.readFile(path, (err, buffer) =>  {
-      resolve(Parser.parseString(buffer.toString()))
+      err ? reject(err)
+          : resolve(Parser.parseString(buffer.toString()))
     })
   }),
 
